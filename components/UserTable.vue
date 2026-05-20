@@ -28,6 +28,7 @@
                 >
               <span class="inline-flex items-center gap-1.5">
                 Age
+                <!-- Show active arrow icon for the column being sorted -->
                 <svg
                     v-if="sortBy === 'age' && sortDirection === 'asc'"
                     xmlns="http://www.w3.org/2000/svg"
@@ -82,6 +83,7 @@
                 >
               <span class="inline-flex items-center gap-1.5">
                 Created
+                <!-- Show active arrow icon for the column being sorted -->
                 <svg
                     v-if="sortBy === 'createdAt' && sortDirection === 'asc'"
                     xmlns="http://www.w3.org/2000/svg"

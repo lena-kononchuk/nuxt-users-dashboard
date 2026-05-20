@@ -12,7 +12,39 @@
             Manage platform accounts, roles and access.
           </p>
         </div>
-        <!-- ThemeToggle (TODO 5.2) -->
+          <button
+            @click="toggleTheme"
+            class="grid place-items-center w-9 h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white
+          dark:bg-surface-dark-2 text-slate-600 dark:text-white/75 hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors"
+            :aria-label="isDark ? 'Switch to light theme' : 'Switch to dark theme'"
+          >
+            <svg
+              v-if="isDark"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              class="w-4 h-4"
+            >
+              <path d="M12 2.25a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0V3a.75.75 0 0 1 .75-.75ZM7.5 12a4.5 4.5 0 1 1 9 0 4.5 4.5
+          0 0 1-9 0ZM18.894 6.166a.75.75 0 0 0-1.06-1.06l-1.591 1.59a.75.75 0 1 0 1.06 1.061l1.591-1.59ZM21.75 12a.75.75 0 0
+          1-.75.75h-2.25a.75.75 0 0 1 0-1.5H21a.75.75 0 0 1 .75.75ZM17.834 18.894a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 1
+          0-1.061 1.06l1.59 1.591ZM12 18a.75.75 0 0 1 .75.75V21a.75.75 0 0 1-1.5 0v-2.25A.75.75 0 0 1 12 18ZM7.758 17.303a.75.75 0 0
+          0-1.061-1.06l-1.591 1.59a.75.75 0 0 0 1.06 1.061l1.591-1.59ZM6 12a.75.75 0 0 1-.75.75H3a.75.75 0 0 1 0-1.5h2.25A.75.75 0
+          0 1 6 12ZM6.697 7.757a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 0 0-1.061 1.06l1.59 1.591Z" />
+            </svg>
+
+            <svg
+              v-else
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              class="w-4 h-4"
+            >
+              <path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 0 1 .162.819A8.97 8.97 0 0 0 9 6a9 9 0 0 0 9 9 8.97 8.97 0 0 0
+          3.463-.69.75.75 0 0 1 .981.98 10.503 10.503 0 0 1-9.694 6.46c-5.799 0-10.5-4.7-10.5-10.5 0-4.368 2.667-8.112
+          6.46-9.694a.75.75 0 0 1 .818.162Z" clip-rule="evenodd" />
+            </svg>
+          </button>
       </header>
 
       <UserFilters
@@ -88,6 +120,44 @@ const {
   totalPages,
 } = useUsersTable(users)
 
+// Theme state — synced with <html class="dark"> and localStorage
+const isDark = ref(false);
+
+onMounted(() => {
+
+  // Use saved theme if any, otherwise fall back to OS preference
+  const saved = localStorage.getItem('theme')
+  if (saved) {
+    isDark.value = saved === 'dark'
+  } else {
+    isDark.value = window.matchMedia('(prefers-color-scheme: dark)').matches
+  }
+  applyTheme()
+})
+
+// Sync `dark` class with isDark — Tailwind reads this class for dark: variants
+function applyTheme() {
+    document.documentElement.classList.toggle('dark', isDark.value)
+  }
+
+  function toggleTheme() {
+
+    // Temporarily disable CSS transitions to avoid color-flicker on switch.
+    // Two requestAnimationFrame's are needed for browser to actually paint
+    // before transitions are re-enabled.
+    document.documentElement.classList.add('theme-switching')
+
+    isDark.value = !isDark.value
+    localStorage.setItem('theme', isDark.value ? 'dark' : 'light')
+    applyTheme()
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.documentElement.classList.remove('theme-switching')
+      })
+    })
+  }
+
 function onSort(field) {
   if (sortBy.value === field) {
     sortDirection.value =
@@ -98,3 +168,10 @@ function onSort(field) {
   }
 }
 </script>
+
+ <style>
+ /* Disable transitions while theme is switching to prevent visible color lag */
+  .theme-switching, .theme-switching * {
+    transition: none !important;
+  }
+  </style>

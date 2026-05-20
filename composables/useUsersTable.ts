@@ -1,8 +1,12 @@
 export function useUsersTable(users) {
 
+  // Nuxt composables for URL sync (read via route, write via router)
   const router = useRouter();
   const route = useRoute();
 
+  // Two separate refs for search:
+  // - searchInput: what user is typing right now (instant)
+  // - search: what actually drives filtering (updated after debounce)
   const searchInput = ref(route.query.search || '')
   const isLoading = ref(false)
   let searchTimer = null;
@@ -15,9 +19,11 @@ export function useUsersTable(users) {
   const sortDirection = ref(route.query.sortDirection || 'asc')
 
   // pagination
+  // Number() is required because route.query values are always strings
   const page = ref(Number(route.query.page) || 1)
   const perPage = ref(Number(route.query.perPage) || 10)
 
+  // Step 1: filter by search (name/email) and role
   const filteredUsers = computed(() => {
 
     const searchQuery = search.value.toLowerCase()
@@ -28,6 +34,9 @@ export function useUsersTable(users) {
       return filterByName && filterByRole
     })
   })
+
+  // Step 2: sort filtered users
+  // Spread first to avoid mutating filteredUsers (Array.sort mutates in place)
   const sortedUsers = computed(() => {
 
     if (sortBy.value === null) {
@@ -50,7 +59,7 @@ export function useUsersTable(users) {
     })
 
   })
-  // - paginatedUsers
+  // Step 3: slice sorted users for current page only
   const paginatedUsers = computed(() => {
 
     const pageStart = (page.value - 1) * perPage.value;
@@ -59,7 +68,7 @@ export function useUsersTable(users) {
     return sortedUsers.value.slice(pageStart, pageEnd)
   })
 
-
+  // Minimum 1 page even on empty results — avoids "Page 1 of 0"
   const totalPages = computed(() =>{
 
     const total = Math.ceil(filteredUsers.value.length / perPage.value)
@@ -67,10 +76,15 @@ export function useUsersTable(users) {
   })
 
 
+  // Reset to page 1 whenever filter/sort changes, otherwise user can get
+  // stuck on a page that no longer has results after narrowing the filter
   watch([search, role, sortBy, perPage, sortDirection], () =>{
     page.value = 1
   })
 
+  // Sync state to URL on every change.
+  // Uses router.replace (not push) — typing doesn't pollute browser history.
+  // `|| undefined` trick: default values are omitted from URL to keep it clean.
   watch([search, role, sortBy, perPage, sortDirection, page], () =>{
     router.replace({
       query: {
@@ -83,6 +97,10 @@ export function useUsersTable(users) {
       }
     })
   })
+
+
+  // Debounce search: apply the input only after 800ms of no typing.
+  // Prevents re-filtering on every keystroke on large datasets.
   watch(searchInput, (newValue) =>{
     isLoading.value = true
     clearTimeout(searchTimer)
