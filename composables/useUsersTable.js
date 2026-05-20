@@ -69,11 +69,14 @@ export function useUsersTable(users) {
   })
 
   // Minimum 1 page even on empty results — avoids "Page 1 of 0"
-  const totalPages = computed(() =>{
-
+  const totalPages = computed(() => {
     const total = Math.ceil(filteredUsers.value.length / perPage.value)
-    return total === 0 ? 1 : total;
+    if (!Number.isFinite(total) || total < 1) return 1
+    return total
   })
+
+  // Total count of filtered results — used in "Showing X–Y of N" footer
+  const totalCount = computed(() => filteredUsers.value.length)
 
 
   // True if user has any non-default filter active
@@ -143,10 +146,10 @@ export function useUsersTable(users) {
 
     paginatedUsers,
     totalPages,
+    totalCount,
     searchInput,
     isLoading,
     hasActiveFilters,
-    resetFilters
-
+    resetFilters,
   }
 }
