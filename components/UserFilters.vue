@@ -21,6 +21,21 @@
           type="text"
           class="w-full h-[38px] pl-9 pr-3 rounded-lg bg-white dark:bg-surface-dark-2 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/35 focus:outline-none focus:border-brand-600 dark:focus:border-brand-400 focus:ring-[3px] focus:ring-brand-50 dark:focus:ring-brand-400/10 transition-colors"
         />
+
+        <button
+          v-if="search"
+          @click="$emit('update:search', '')"
+          type="button"
+          class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 grid place-items-center text-slate-400 hover:text-slate-600
+        dark:text-white/35 dark:hover:text-white/55 transition-colors"
+          aria-label="Clear search"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3.5 h-3.5">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 0 1 1.414 0L10 8.586l4.293-4.293a1 1 0 1 1 1.414 1.414L11.414 10l4.293
+        4.293a1 1 0 0 1-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 0 1-1.414-1.414L8.586 10 4.293 5.707a1 1 0 0 1 0-1.414Z"
+        clip-rule="evenodd" />
+          </svg>
+        </button>
       </div>
     </div>
 

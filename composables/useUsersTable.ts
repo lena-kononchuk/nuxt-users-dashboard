@@ -76,6 +76,28 @@ export function useUsersTable(users) {
   })
 
 
+  // True if user has any non-default filter active
+  const hasActiveFilters = computed(() =>{
+    return searchInput.value !== '' ||
+    role.value !== null ||
+    sortBy.value !== null
+  })
+
+  // Reset all filters and sorting to defaults.
+  // Clearing search directly (not via debounce) for instant feedback.
+  function resetFilters() {
+    searchInput.value = ''
+    search.value = ''
+    clearTimeout(searchTimer)
+    isLoading.value = false
+    role.value = null
+    sortBy.value = null
+    sortDirection.value = 'asc'
+
+  }
+
+
+
   // Reset to page 1 whenever filter/sort changes, otherwise user can get
   // stuck on a page that no longer has results after narrowing the filter
   watch([search, role, sortBy, perPage, sortDirection], () =>{
@@ -123,6 +145,8 @@ export function useUsersTable(users) {
     totalPages,
     searchInput,
     isLoading,
+    hasActiveFilters,
+    resetFilters
 
   }
 }

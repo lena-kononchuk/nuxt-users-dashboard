@@ -45,6 +45,8 @@
           6.46-9.694a.75.75 0 0 1 .818.162Z" clip-rule="evenodd" />
             </svg>
           </button>
+
+
       </header>
 
       <UserFilters
@@ -56,6 +58,22 @@
         @update:perPage="perPage = $event"
       />
 
+    <!-- Clear filters: shows only when something is active -->
+      <button
+          v-if="hasActiveFilters"
+          @click="resetFilters"
+          type="button"
+          class="self-end inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-slate-200 dark:border-white/10
+        bg-white dark:bg-surface-dark-2 text-[13px] font-medium text-slate-600 dark:text-white/75 hover:bg-slate-50
+        dark:hover:bg-white/[0.03] hover:border-slate-300 dark:hover:border-white/20 transition-colors"
+        >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3.5 h-3.5">
+          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 0 1 1.414 0L10 8.586l4.293-4.293a1 1 0 1 1 1.414 1.414L11.414 10l4.293
+      4.293a1 1 0 0 1-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 0 1-1.414-1.414L8.586 10 4.293 5.707a1 1 0 0 1 0-1.414Z"
+      clip-rule="evenodd" />
+        </svg>
+        Clear filters
+      </button>
       <UserTable
         :users="paginatedUsers"
         :sort-by="sortBy"
@@ -118,6 +136,8 @@ const {
   perPage,
   paginatedUsers,
   totalPages,
+  hasActiveFilters,
+  resetFilters,
 } = useUsersTable(users)
 
 // Theme state — synced with <html class="dark"> and localStorage
