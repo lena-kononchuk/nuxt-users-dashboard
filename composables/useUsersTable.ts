@@ -61,6 +61,9 @@ export function useUsersTable(users) {
   })
 
 
+  watch([search, role, sortBy, perPage, sortDirection], () =>{
+    page.value = 1
+  })
   return {
     search,
     role,
