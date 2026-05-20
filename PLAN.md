@@ -179,44 +179,51 @@ watch(searchInput, (val) => {
 ```
 В компоненті `UserFilters` `v-model` йде на `searchInput`, а `search` використовується у `filteredUsers`.
 
-### Крок 5.2. Тема світла/темна
-Найпростіше — додати клас на `<html>` і CSS-змінні:
+### Крок 5.2. Тема світла/темна — через Tailwind `dark:`
 
-`app.vue` (створи, якщо немає):
+**Як це працює:** Tailwind має варіант `dark:` — клас `dark:bg-gray-900` спрацює, тільки якщо у предка (зазвичай `<html>`) є клас `dark`. Перемикач теми тільки додає/прибирає цей клас.
+
+**Створи файл `tailwind.config.js` у корені** (один раз, щоб увімкнути режим class-based):
+```js
+export default {
+  darkMode: 'class'
+}
+```
+
+**У `pages/index.vue` (або винеси в окремий компонент `ThemeToggle.vue`):**
 ```html
-<template>
-  <NuxtPage />
-</template>
+<button @click="toggleTheme" class="px-3 py-1 rounded border">
+  {{ isDark ? '☀️' : '🌙' }}
+</button>
 ```
 
-`layouts/default.vue` (або просто у `pages/index.vue`):
-- ref `theme = ref('light')` (читати з `localStorage` при mount)
-- кнопка перемикання
-- `watchEffect(() => document.documentElement.dataset.theme = theme.value)`
+```js
+const isDark = ref(false)
 
-`assets/styles/theme.scss`:
-```scss
-:root {
-  --bg: #fff;
-  --text: #111;
-  --border: #ddd;
-}
-[data-theme='dark'] {
-  --bg: #1a1a1a;
-  --text: #f1f1f1;
-  --border: #333;
-}
-body { background: var(--bg); color: var(--text); }
-```
-
-Підключити через `nuxt.config.ts`:
-```ts
-export default defineNuxtConfig({
-  compatibilityDate: '2025-07-15',
-  devtools: { enabled: true },
-  css: ['~/assets/styles/theme.scss']
+onMounted(() => {
+  isDark.value = localStorage.getItem('theme') === 'dark'
+  applyTheme()
 })
+
+function toggleTheme() {
+  isDark.value = !isDark.value
+  localStorage.setItem('theme', isDark.value ? 'dark' : 'light')
+  applyTheme()
+}
+
+function applyTheme() {
+  document.documentElement.classList.toggle('dark', isDark.value)
+}
 ```
+
+**Стилі компонентів** — додай `dark:` варіанти там, де треба:
+```html
+<div class="bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+  …
+</div>
+```
+
+Для sticky-хедера таблиці (Етап 2.2) — `bg-white dark:bg-gray-900` замість фіксованого `#fff`.
 
 ---
 
@@ -271,5 +278,5 @@ git commit -m "feat: filters, sorting, pagination, query state, debounce, theme"
 - Не йде `computed` — кажи, напишу разом.
 - URL крутиться у нескінченному циклі — окремий випадок, що треба обробити.
 - Сорт за датою рандомить — типова пастка, поясню.
-- SCSS не підхоплюється — швидко перевіримо `nuxt.config.ts`.
+- Tailwind-класи не діють — швидко перевіримо `nuxt.config.ts` і чи модуль завантажився.
 - README — можу скласти повністю, ти лише підправиш під свій тон.
