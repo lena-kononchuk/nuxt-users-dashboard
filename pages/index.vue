@@ -12,31 +12,32 @@
             Manage platform accounts, roles and access.
           </p>
         </div>
-        <!-- TODO (Етап 5.2): сюди ThemeToggle -->
+        <!-- ThemeToggle (TODO 5.2) -->
       </header>
 
       <UserFilters
-        :search="search"
+        :search="searchInput"
         :role="role"
         :perPage="perPage"
-        @update:search="search = $event"
+        @update:search="searchInput = $event"
         @update:role="role = $event"
         @update:perPage="perPage = $event"
       />
 
       <UserTable
         :users="paginatedUsers"
+        :sort-by="sortBy"
+        :sort-direction="sortDirection"
+        :class="{ 'opacity-50 pointer-events-none': isLoading }"
         @sort="onSort"
       />
-
-      <div class="flex items-center justify-between gap-4">
+      <div  class="flex items-center justify-between gap-4">
         <div class="text-[13px] text-slate-500 dark:text-white/55">
-          <!-- TODO: показати "Showing 1–10 of N" — потребує computed -->
-          Page <strong class="text-slate-900 dark:text-white font-semibold tabular-nums">{{ page }}</strong>
-          of <strong class="text-slate-900 dark:text-white font-semibold tabular-nums">{{ totalPages }}</strong>
+           Showing <strong class="text-slate-900 dark:text-white font-semibold tabular-nums">{{ page }}</strong> page
+          of <strong class="text-slate-900 dark:text-white font-semibold tabular-nums">{{ totalPages }} </strong>
         </div>
 
-        <div class="inline-flex items-center gap-1.5">
+        <div v-if="totalPages > 1" class="inline-flex items-center gap-1.5">
           <button
             @click="page--"
             :disabled="page === 1"
@@ -76,6 +77,8 @@ import { useUsersTable } from '~/composables/useUsersTable'
 
 const {
   search,
+  searchInput,
+  isLoading,
   role,
   sortBy,
   sortDirection,

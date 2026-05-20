@@ -1,16 +1,22 @@
 export function useUsersTable(users) {
 
+  const router = useRouter();
+  const route = useRoute();
+
+  const searchInput = ref(route.query.search || '')
+  const isLoading = ref(false)
+  let searchTimer = null;
   // filters
-  const search = ref('')
-  const role = ref(null)
+  const search = ref(route.query.search || '');
+  const role = ref(route.query.role || null);
 
   // sorting
-  const sortBy = ref(null) // 'age' | 'createdAt'
-  const sortDirection = ref('asc')
+  const sortBy = ref(route.query.sortBy || null)
+  const sortDirection = ref(route.query.sortDirection || 'asc')
 
   // pagination
-  const page = ref(1)
-  const perPage = ref(10)
+  const page = ref(Number(route.query.page) || 1)
+  const perPage = ref(Number(route.query.perPage) || 10)
 
   const filteredUsers = computed(() => {
 
@@ -64,6 +70,29 @@ export function useUsersTable(users) {
   watch([search, role, sortBy, perPage, sortDirection], () =>{
     page.value = 1
   })
+
+  watch([search, role, sortBy, perPage, sortDirection, page], () =>{
+    router.replace({
+      query: {
+        search: search.value || undefined,
+        role: role.value || undefined,
+        sortBy: sortBy.value || undefined,
+        sortDirection: sortBy.value ? sortDirection.value : undefined,
+        page: page.value !== 1 ? page.value : undefined,
+        perPage: perPage.value !== 10 ? perPage.value : undefined,
+      }
+    })
+  })
+  watch(searchInput, (newValue) =>{
+    isLoading.value = true
+    clearTimeout(searchTimer)
+    searchTimer = setTimeout(() =>{
+      search.value = newValue
+      isLoading.value = false
+    }, 800)
+  })
+
+
   return {
     search,
     role,
@@ -74,6 +103,8 @@ export function useUsersTable(users) {
 
     paginatedUsers,
     totalPages,
+    searchInput,
+    isLoading,
 
   }
 }
