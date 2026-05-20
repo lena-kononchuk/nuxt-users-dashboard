@@ -6,7 +6,10 @@ export default defineNuxtConfig({
   tailwindcss: {
     configPath: '~/tailwind.config.mjs'
   },
+  ssr: false,
   app: {
+
+    baseURL: '/nuxt-users-dashboard/',
     head: {
       link: [
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -17,5 +20,8 @@ export default defineNuxtConfig({
         }
       ]
     }
-  }
+  },
+  nitro: {
+      preset: 'github-pages'
+    }
 })
